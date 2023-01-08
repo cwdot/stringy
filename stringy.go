@@ -16,11 +16,16 @@ type input struct {
 	Result string
 }
 
+type CamelCaseOpts struct {
+	Rules     []string
+	Separator string
+}
+
 // StringManipulation is an interface that holds all abstract methods to manipulate strings
 type StringManipulation interface {
 	Between(start, end string) StringManipulation
 	Boolean() bool
-	CamelCase(rule ...string) string
+	CamelCase(opts ...func(*CamelCaseOpts)) string
 	ContainsAll(check ...string) bool
 	Delimited(delimiter string, rule ...string) StringManipulation
 	First(length int) string
@@ -99,14 +104,21 @@ func (i *input) Boolean() bool {
 // accordingly by default and you dont have to worry about it
 // Example input: hello user
 // Result : HelloUser
-func (i *input) CamelCase(rule ...string) string {
+func (i *input) CamelCase(opts ...func(*CamelCaseOpts)) string {
+	settings := &CamelCaseOpts{
+		Rules:     []string{},
+		Separator: "",
+	}
+	for _, opt := range opts {
+		opt(settings)
+	}
 	input := getInput(*i)
 	// removing excess space
-	wordArray := caseHelper(input, true, rule...)
+	wordArray := caseHelper(input, true, settings.Rules...)
 	for i, word := range wordArray {
 		wordArray[i] = ucfirst(word)
 	}
-	return strings.Join(wordArray, "")
+	return strings.Join(wordArray, settings.Separator)
 }
 
 // ContainsAll is variadic function which takes slice of strings as param and checks if they are present
