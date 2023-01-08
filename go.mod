@@ -1,3 +1,3 @@
-module github.com/gobeam/stringy
+module github.com/cwdot/stringy
 
-go 1.14
+go 1.19
